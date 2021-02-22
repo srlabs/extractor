@@ -698,7 +698,7 @@ class IgnoreVmlinuxHandler(FileHandler):
 
 class IgnoreOpImageHandler(FileHandler):
     """
-    Handler to ignore OP_\\d+.bin files, e.g. from /android/LG/may2017/H840AR10a_01_0906.kdz/H840AR10a_01_0906.kdz
+    Handler to ignore OP_\\d+.bin files
     """
     def check(self) -> CheckFileResult:
         m = re.match(rb'op_\d+\.bin', self.fn.lower())
@@ -716,7 +716,7 @@ class IgnoreOpImageHandler(FileHandler):
 
 class IgnoreOemImgHandler(FileHandler):
     """
-    Handler to ignore oem.img files, e.g. from /android/2018-06/Blur_Version.28.11.15.payton_fi.google_fi.en.US.zip/Blur_Version.28.11.15.payton_fi.google_fi.en.US.zip
+    Handler to ignore oem.img files
     """
     def check(self) -> CheckFileResult:
         if self.fn == b'oem.img':
@@ -737,7 +737,6 @@ class IgnoreAppsImgHandler(FileHandler):
 class IgnoreUpdateHwHandler(FileHandler):
     """
     Handler to ignore update_full_*_hw_*.zip files
-    Required e.g. for /android/2018-11/9.0.0.47-c432.zip/9.0.0.47-c432.zip
     Only required in ArchiveDirectoryHandler Pass2
     """
     def check(self) -> CheckFileResult:
