@@ -1,0 +1,9 @@
+[submodule "nokia-dumper"]
+	path = nokia-dumper
+	url = https://github.com/stze/Home-Brew_Tool-Nokia.git
+[submodule "splituapp"]
+	path = splituapp
+	url = https://github.com/stze/splituapp.git
+[submodule "sinextract"]
+	path = sinextract
+	url = https://github.com/stze/anyxperia_dumper.git
