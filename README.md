@@ -6,15 +6,15 @@
 
 Extractor is a powerful Android firmware image extraction utility
 
-# Installation
-To run Extractor on your computer some preparation steps are required. Since Extractor is a python tool, a working python environment is required. Extractor depends on some git submodules, all of which can be initialized like so
+## Supported formats
 
-```bash
-# Initialize git submodules
-./scripts/init.sh
+Extractor supports the following Android image formats:
+```
+android sparse image, erofs, extfs, android signed images, android data image, android data image brotli, pac, zip, lz4, tar, tar md5, sin, ozip, app, kdz, bin, cpb, super
 ```
 
-If you wish to run Extractor without installing the necesarry requirements yourself, you may run it using docker.
+# Installation
+To run Extractor on your computer some preparation steps are necessary. Since Extractor is a python tool, a working python environment is required.
 
 ## Debian-based (Debian, Ubuntu)
 
@@ -40,6 +40,16 @@ Now, install the python dependencies:
 ```bash
 pip3 install -r requirements.txt
 ```
+
+Extractor depends on some git submodules, all of which can be initialized like so
+
+```bash
+# Initialize git submodules
+./scripts/init.sh
+```
+
+If you wish to run Extractor without installing the necesarry requirements yourself, you may run it using docker.
+
 # Usage
 
 You can run Extractor on your machine by running:
