@@ -1093,6 +1093,8 @@ class Lz4Handler(FileHandler):
                 return CheckFileResult.HANDLER_NO_MATCH  # Handled by RecoveryImageHandler
             if self.fn.lower() == b"super.img.lz4":
                 return CheckFileResult.ARCHIVE
+            if self.fn.lower().startswith(b"prism."):
+                return CheckFileResult.IGNORE
             if self.fn.lower().startswith(b"persist."):
                 return CheckFileResult.IGNORE
             if self.fn.lower().startswith(b"userdata."):  # userdata partition contains stuff like dalvik cache etc.
