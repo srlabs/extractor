@@ -1091,6 +1091,8 @@ class Lz4Handler(FileHandler):
                 return CheckFileResult.HANDLER_NO_MATCH  # Handled by BootImageHandler
             if self.fn.lower() == b"recovery.img.lz4":
                 return CheckFileResult.HANDLER_NO_MATCH  # Handled by RecoveryImageHandler
+            if self.fn.lower() == b"super.img.lz4":
+                return CheckFileResult.ARCHIVE
             if self.fn.lower().startswith(b"persist."):
                 return CheckFileResult.IGNORE
             if self.fn.lower().startswith(b"userdata."):  # userdata partition contains stuff like dalvik cache etc.
@@ -1138,13 +1140,13 @@ class Lz4Handler(FileHandler):
         with open(abs_out_fn, 'wb') as f:
             subprocess.check_call(cmd, stdout=f)
         assert os.path.exists(abs_out_fn)
-        HANDLER_TYPES = [ExtfsHandler, SparseImageHandler, ErofsHandler]
+        HANDLER_TYPES = [ExtfsHandler, SparseImageHandler, ErofsHandler, SuperImageHandler]
         handlers = []
         for handler_type in HANDLER_TYPES:
             handler = handler_type(self.extractor, self.extractor.rel_path(abs_out_fn), image_type=self.image_type, file_type=get_file_type(abs_out_fn))
             handler_result = handler.check()
             if handler_result != CheckFileResult.HANDLER_NO_MATCH:
-                assert handler_result in (CheckFileResult.SYSTEM_IMG, CheckFileResult.VENDOR_IMG, CheckFileResult.SYSTEM_OR_VENDOR), "Unexpected handler_result=%r from handler %r" % (handler_result, handler.__class__.__name__)
+                assert handler_result in (CheckFileResult.SYSTEM_IMG, CheckFileResult.VENDOR_IMG, CheckFileResult.SYSTEM_OR_VENDOR, CheckFileResult.ARCHIVE), "Unexpected handler_result=%r from handler %r" % (handler_result, handler.__class__.__name__)
                 handlers.append(handler)
         if len(handlers) > 1:
             raise MultipleHandlerMatchError("File %r: %r" % (abs_out_fn, [x.__class__.__name__ for x in handlers]))
