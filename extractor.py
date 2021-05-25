@@ -1107,6 +1107,8 @@ class Lz4Handler(FileHandler):
                 return CheckFileResult.IGNORE
             if self.fn.lower().startswith(b"modem"):
                 return CheckFileResult.IGNORE
+            if self.fn.lower().startswith(b"odm."):
+                return CheckFileResult.IGNORE
             if self.fn.lower().startswith(b"system"):
                 self.image_type = ImageType.SYSTEM
                 return CheckFileResult.SYSTEM_IMG
