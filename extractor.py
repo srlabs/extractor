@@ -1747,7 +1747,8 @@ class ArchiveDirectoryHandler:
             BootImageHandler,
             RecoveryImageHandler,
             PacHandler,
-            IgnoreAppsImgHandler
+            IgnoreAppsImgHandler,
+            SuperImageHandler,
         ]
         handlers_found_pass1: List[FileHandler] = list()
         ignore_size_coverage: bool = False
