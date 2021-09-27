@@ -515,6 +515,8 @@ class RawprogramUnsparseHandler(FileHandler):
         root = tree.getroot()
         params_tags = root.xpath('//step[@filter="hlos"]/params')
         if len(params_tags) == 0:
+            if len(root.xpath("/contents/product_info/product_name")) > 0:
+                return CheckFileResult.HANDLER_NO_MATCH  # Some firmwares have a completely different file called "contents.xml", which isn't required for extraction.
             raise ValueError("Failed to parse contents.xml")
         result = CheckFileResult.HANDLER_NO_MATCH
         for params_tag in params_tags:
