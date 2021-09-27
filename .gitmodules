@@ -7,3 +7,6 @@
 [submodule "sinextract"]
 	path = sinextract
 	url = https://github.com/stze/anyxperia_dumper.git
+[submodule "kdzextractor"]
+	path = kdzextractor
+	url = ./kdzextractor/
