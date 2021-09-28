@@ -728,10 +728,30 @@ class IgnoreOemImgHandler(FileHandler):
 
 class IgnoreProductImgHandler(FileHandler):
     """
-    Handler to ignore oem.img files
+    Handler to ignore product.img files
     """
     def check(self) -> CheckFileResult:
         if self.fn == b'product.img' or self.fn.startswith(b'product.img.'):
+            return CheckFileResult.IGNORE
+        return CheckFileResult.HANDLER_NO_MATCH
+
+
+class IgnoreSystemExtImgHanlder(FileHandler):
+    """
+    Handler to ignore system_ext.img files
+    """
+    def check(self) -> CheckFileResult:
+        if self.fn == b'system_ext.img' or self.fn.startswith(b'system_ext.img.'):
+            return CheckFileResult.IGNORE
+        return CheckFileResult.HANDLER_NO_MATCH
+
+
+class IgnoreXromImgHanlder(FileHandler):
+    """
+    Handler to ignore xrom.img files
+    """
+    def check(self) -> CheckFileResult:
+        if self.fn == b'xrom.img' or self.fn.startswith(b'xrom.img.'):
             return CheckFileResult.IGNORE
         return CheckFileResult.HANDLER_NO_MATCH
 
@@ -954,7 +974,7 @@ class SuperImageHandler(FileHandler):
                 if not liblp.check_magic(f):
                     return CheckFileResult.HANDLER_NO_MATCH
             if not self.fn.lower().startswith(b'super'):
-                raise ValueError("Found liblp magic but not in super image, this should not happen")
+                raise ValueError(f"Found liblp magic in {self.fn} but not in super image, this should not happen")
             return CheckFileResult.ARCHIVE
 
     def extract_file2dir(self, output_path_rel):
@@ -1759,6 +1779,8 @@ class ArchiveDirectoryHandler:
             IgnoreOpImageHandler,
             IgnoreOemImgHandler,
             IgnoreProductImgHandler,
+            IgnoreSystemExtImgHanlder,
+            IgnoreXromImgHanlder,
             IgnoreElfHandler,
             IgnoreVmlinuxHandler,
             BootImageHandler,
@@ -1857,6 +1879,8 @@ class ArchiveDirectoryHandler:
             IgnoreOpImageHandler,
             IgnoreOemImgHandler,
             IgnoreProductImgHandler,
+            IgnoreSystemExtImgHanlder,
+            IgnoreXromImgHanlder,
             IgnoreUpdateHwHandler,  # Only for Pass 2
             IgnoreHuaweiUserdataAppHandler,
             IgnoreElfHandler,
