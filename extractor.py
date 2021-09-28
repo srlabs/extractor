@@ -726,6 +726,16 @@ class IgnoreOemImgHandler(FileHandler):
         return CheckFileResult.HANDLER_NO_MATCH
 
 
+class IgnoreProductImgHandler(FileHandler):
+    """
+    Handler to ignore oem.img files
+    """
+    def check(self) -> CheckFileResult:
+        if self.fn == b'product.img' or self.fn.startswith(b'product.img.'):
+            return CheckFileResult.IGNORE
+        return CheckFileResult.HANDLER_NO_MATCH
+
+
 class IgnoreAppsImgHandler(FileHandler):
     """
     Handler to ignore apps.img (and apps_X.img) files
@@ -1748,6 +1758,7 @@ class ArchiveDirectoryHandler:
             IgnoreBootloaderHandler,
             IgnoreOpImageHandler,
             IgnoreOemImgHandler,
+            IgnoreProductImgHandler,
             IgnoreElfHandler,
             IgnoreVmlinuxHandler,
             BootImageHandler,
@@ -1846,6 +1857,7 @@ class ArchiveDirectoryHandler:
             IgnoreBootloaderHandler,
             IgnoreOpImageHandler,
             IgnoreOemImgHandler,
+            IgnoreProductImgHandler,
             IgnoreUpdateHwHandler,  # Only for Pass 2
             IgnoreHuaweiUserdataAppHandler,
             IgnoreElfHandler,
