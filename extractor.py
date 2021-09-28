@@ -1784,9 +1784,8 @@ class ArchiveDirectoryHandler:
                     sr = os.stat(abs_fn)
                     total_size += sr.st_size
                     handler_result_to_handlers: DefaultDict[CheckFileResult, List[FileHandler]] = defaultdict(list)
+                    file_type = get_file_type(abs_fn)
                     for handler_type in HANDLER_LIST_PASS1:
-                        file_type = get_file_type(abs_fn)
-                        # logging.info("HANDLER_TYPE: %r  rel_path=%r" % (handler_type, rel_path))
                         handler = handler_type(self.extractor, rel_path, file_type)
                         handler_result = handler.check()
                         if handler_result == CheckFileResult.HANDLER_NO_MATCH:
@@ -1906,8 +1905,8 @@ class ArchiveDirectoryHandler:
                         biggest_file_abs = abs_fn
                         biggest_file_rel = rel_path
                     handler_result_to_handlers = defaultdict(list)
+                    file_type = get_file_type(abs_fn)
                     for handler_type in HANDLER_LIST_PASS2:
-                        file_type = get_file_type(abs_fn)
                         handler = handler_type(self.extractor, rel_path, file_type)
                         handler_result = handler.check()
                         if handler_result == CheckFileResult.HANDLER_NO_MATCH:
