@@ -588,7 +588,10 @@ class RawprogramUnsparseHandler(FileHandler):
             elif label.startswith("custom") or label.startswith("userdata"):
                 filename = program_tag.attrib["filename"]
                 abs_fn = os.path.join(image_base_dir, filename.encode())
-                self.extra_ignored_size += os.stat(abs_fn).st_size
+                try:
+                    self.extra_ignored_size += os.stat(abs_fn).st_size
+                except FileNotFoundError:
+                    pass
             else:
                 # Just to make sure we aren't missing a vendor partition here
                 assert 'vendor' not in label.lower(), "Found unexpected program label containing 'vendor' in %r" % program_tag.attrib["label"]
