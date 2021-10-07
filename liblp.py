@@ -29,6 +29,7 @@ from construct_typing import TypedContainer
 
 
 def main():
+    breakpoint()
     super_img = SuperImage(sys.argv[1])
     print("PARTITIONS: %r" % super_img.get_partition_names())
     for partition_name in super_img.get_partition_names():
@@ -57,7 +58,7 @@ class SuperImage:
     fh: BinaryIO
     mmap: mmap.mmap
     geometry: "LpMetadataGeometry"
-    metadata_header: "LpMetadataHeader"
+    metadata_header: "Union[LpMetadataHeaderV1_0, LpMetadataHeaderV1_2]"
     partitions: List["LpMetadataPartition"]
     extents: List["LpMetadataExtent"]
     block_device: "LpMetadataBlockDevice"
@@ -75,8 +76,15 @@ class SuperImage:
         lmg_copy.validate()
         assert lmg == lmg_copy
         # Read and validate
-        self.metadata_header = LpMetadataHeader.parse(self.mmap[0x3000:0x3000 + LpMetadataHeader.sizeof()])
-        self.metadata_header.validate()
+        tmp_metadata_header = LpMetadataHeaderV1_0.parse(self.mmap[0x3000:0x3000 + LpMetadataHeaderV1_0.sizeof()])
+        if tmp_metadata_header.header_size == LpMetadataHeaderV1_0.sizeof():
+            self.metadata_header = tmp_metadata_header
+            self.metadata_header.validate()
+        elif tmp_metadata_header.header_size == LpMetadataHeaderV1_2.sizeof():
+            self.metadata_header = LpMetadataHeaderV1_2.parse(self.mmap[0x3000:0x3000 + LpMetadataHeaderV1_2.sizeof()])
+            self.metadata_header.validate()
+        else:
+            raise ValueError(f"Invalid LpMetadataHeader.header_size={tmp_metadata_header.header_size}")
         table_data = self.mmap[0x3000 + self.metadata_header.header_size:0x3000 + self.metadata_header.header_size + self.metadata_header.tables_size]
         self.metadata_header.validate_table_data(table_data)
         # Read partitions from table_data
@@ -171,7 +179,7 @@ class LpMetadataTableDescriptor(TypedContainer):
 assert LpMetadataTableDescriptor.sizeof() == 12
 
 
-class LpMetadataHeader(TypedContainer):
+class LpMetadataHeaderV1_0(TypedContainer):
     magic: int
     major_version: int
     minor_version: int
@@ -202,14 +210,64 @@ class LpMetadataHeader(TypedContainer):
 
     def validate(self):
         assert self.magic == 0x414C5030
-        assert self.header_size == LpMetadataHeader.sizeof(), "Bad LpMetadataHeader.header_size %d, should be %d" % (self.header_size, LpMetadataHeader.sizeof())
+        assert self.header_size == LpMetadataHeaderV1_0.sizeof(), "Bad LpMetadataHeaderV1_0.header_size %d, should be %d" % (self.header_size, LpMetadataHeaderV1_0.sizeof())
         tmp = copy.copy(self)
         tmp.header_checksum = b'\0' * 32
         tmp_encoded = tmp.build()
         digest = hashlib.sha256(tmp_encoded).digest()
         assert self.header_checksum == digest
-        assert self.partitions.entry_size == LpMetadataPartition.sizeof(), "Bad LpMetadataHeader.partitions.entry_size %d, should be %d" % (self.partitions.entry_size, LpMetadataPartition.sizeof())
-        assert self.extents.entry_size == LpMetadataExtent.sizeof(), "Bad LpMetadataHeader.extents.entry_size %d, should be %d" % (self.extents.entry_size, LpMetadataExtent.sizeof())
+        assert self.partitions.entry_size == LpMetadataPartition.sizeof(), "Bad LpMetadataHeaderV1_0.partitions.entry_size %d, should be %d" % (self.partitions.entry_size, LpMetadataPartition.sizeof())
+        assert self.extents.entry_size == LpMetadataExtent.sizeof(), "Bad LpMetadataHeaderV1_0.extents.entry_size %d, should be %d" % (self.extents.entry_size, LpMetadataExtent.sizeof())
+        assert self.tables_size < 1e6
+
+    def validate_table_data(self, buf: bytes):
+        assert len(buf) == self.tables_size
+        digest = hashlib.sha256(buf).digest()
+        assert self.tables_checksum == digest
+
+
+class LpMetadataHeaderV1_2(TypedContainer):
+    magic: int
+    major_version: int
+    minor_version: int
+    header_size: int
+    header_checksum: bytes
+    tables_size: int
+    tables_checksum: bytes
+    partitions: LpMetadataTableDescriptor
+    extents: LpMetadataTableDescriptor
+    groups: LpMetadataTableDescriptor
+    block_devices: LpMetadataTableDescriptor
+    flags: int
+    # flags: int
+    # reserved: bytes
+    # noinspection PyUnresolvedReferences
+    construct_struct = Struct(
+        "magic" / Int32ul,
+        "major_version" / Int16ul,
+        "minor_version" / Int16ul,
+        "header_size" / Int32ul,
+        "header_checksum" / Bytes(32),
+        "tables_size" / Int32ul,
+        "tables_checksum" / Bytes(32),
+        "partitions" / LpMetadataTableDescriptor.as_inner_type(),
+        "extents" / LpMetadataTableDescriptor.as_inner_type(),
+        "groups" / LpMetadataTableDescriptor.as_inner_type(),
+        "block_devices" / LpMetadataTableDescriptor.as_inner_type(),
+        "flags" / Int32ul,
+        "_reserved" / Bytes(124)
+    )
+
+    def validate(self):
+        assert self.magic == 0x414C5030
+        assert self.header_size == LpMetadataHeaderV1_2.sizeof(), "Bad LpMetadataHeaderV1_2.header_size %d, should be %d" % (self.header_size, LpMetadataHeaderV1_0.sizeof())
+        tmp = copy.copy(self)
+        tmp.header_checksum = b'\0' * 32
+        tmp_encoded = tmp.build()
+        digest = hashlib.sha256(tmp_encoded).digest()
+        assert self.header_checksum == digest
+        assert self.partitions.entry_size == LpMetadataPartition.sizeof(), "Bad LpMetadataHeaderV1_2.partitions.entry_size %d, should be %d" % (self.partitions.entry_size, LpMetadataPartition.sizeof())
+        assert self.extents.entry_size == LpMetadataExtent.sizeof(), "Bad LpMetadataHeaderV1_2.extents.entry_size %d, should be %d" % (self.extents.entry_size, LpMetadataExtent.sizeof())
         assert self.tables_size < 1e6
 
     def validate_table_data(self, buf: bytes):
