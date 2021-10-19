@@ -9,4 +9,4 @@
 	url = https://github.com/stze/anyxperia_dumper.git
 [submodule "kdzextractor"]
 	path = kdzextractor
-	url = ./kdzextractor/
+	url = https://github.com/innfinite4evr/Kdzextractor.git
