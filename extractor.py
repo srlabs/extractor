@@ -2155,16 +2155,25 @@ class FirmwareExtractor:
                 elif isinstance(handler, MountableImage) or isinstance(handler, FilesystemExtractor):
                     assert handler.image_type in (ImageType.SYSTEM, ImageType.VENDOR), "Bad handler.image_type %r for %r" % (handler.image_type, handler.__class__.__name__)
                     if handler.image_type == ImageType.SYSTEM:
-                        assert self.system_handler is None, "Duplicate system_handler: %s:%r <=> %s:%s" % (self.system_handler.__class__.__name__, self.system_handler.abs_fn, handler.__class__.__name__, handler.abs_fn)
+                        if self.system_handler is not None:
+                            logging.warning("Duplicate system_handler in firmware")
+                            logging.warning("OLD: %s => %s", self.system_handler.__class__.__name__, self.system_handler.abs_fn)
+                            subprocess.call(["file", self.system_handler.abs_fn])
+                            logging.warning("NEW: %s => %s", handler.__class__.__name__, handler.abs_fn)
+                            subprocess.call(["file", handler.abs_fn])
+                            assert compare_file_contents(self.system_handler.abs_fn, handler.abs_fn), "Duplicate system_handler with non-equal contents: %s:%r <=> %s:%s" % (self.system_handler.__class__.__name__, self.vendor_handler.abs_fn, handler.__class__.__name__, handler.abs_fn)
+                            logging.warning("Continuing anyway since both files are equal")
                         self.system_handler = handler
                         logging.info("Found system handler")
                     elif handler.image_type == ImageType.VENDOR:
                         if self.vendor_handler is not None:
-                            logging.error("OLD: %s => %s", self.vendor_handler.__class__.__name__, self.vendor_handler.abs_fn)
+                            logging.warning("Duplicate vendor_handler in firmware")
+                            logging.warning("OLD: %s => %s", self.vendor_handler.__class__.__name__, self.vendor_handler.abs_fn)
                             subprocess.call(["file", self.vendor_handler.abs_fn])
-                            logging.error("NEW: %s => %s", handler.__class__.__name__, handler.abs_fn)
+                            logging.warning("NEW: %s => %s", handler.__class__.__name__, handler.abs_fn)
                             subprocess.call(["file", handler.abs_fn])
-                            assert self.vendor_handler is None, "Duplicate vendor_handler: %s:%r <=> %s:%s" % (self.vendor_handler.__class__.__name__, self.vendor_handler.abs_fn, handler.__class__.__name__, handler.abs_fn)
+                            assert compare_file_contents(self.vendor_handler.abs_fn, handler.abs_fn), "Duplicate vendor_handler with non-equal contents: %s:%r <=> %s:%s" % (self.vendor_handler.__class__.__name__, self.vendor_handler.abs_fn, handler.__class__.__name__, handler.abs_fn)
+                            logging.warning("Continuing anyway since both files are equal")
                         self.vendor_handler = handler
                         logging.info("Found vendor handler")
                 elif isinstance(handler, SystemDirectoryHandler):
@@ -2324,6 +2333,22 @@ class FirmwareExtractor:
         while path.startswith(b'/'):
             path = path[1:]
         return path
+
+
+def compare_file_contents(path_a, path_b) -> bool:
+    """
+    Compares two files and returns whether the files are equal.
+    """
+    if os.stat(path_a).st_size != os.stat(path_b).st_size:
+        return False
+    with open(path_a, 'rb') as file_a, open(path_b, 'rb') as file_b:
+        while True:
+            buf_a = file_a.read(1024*1024)
+            buf_b = file_b.read(1024*1024)
+            if buf_a != buf_b:
+                return False
+            if buf_a == b'' and buf_b == b'':
+                return True
 
 
 def get_file_type(abs_fn):
