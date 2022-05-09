@@ -269,7 +269,7 @@ class Erofs:
                         return self.get_inode(dirent.nid, dirent.file_type)
                     else:
                         next_inode = self.get_inode(dirent.nid, dirent.file_type)
-                        if isinstance(inode, DirInode):
+                        if isinstance(next_inode, DirInode):
                             inode = next_inode
                             ok = True
                         else:
