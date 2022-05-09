@@ -273,7 +273,7 @@ class Erofs:
                             inode = next_inode
                             ok = True
                         else:
-                            raise ValueError("Inode at %r is of type %r instead of DirInode" % (path[0:i], type(inode)))
+                            raise ValueError("Inode at %r is of type %r instead of DirInode" % (path[0:i], type(next_inode)))
             if not ok:
                 raise FileNotFoundError("Failed to find %r in %r" % (path[i], path[0:i]))
         assert False, path
