@@ -269,11 +269,11 @@ class Erofs:
                         return self.get_inode(dirent.nid, dirent.file_type)
                     else:
                         next_inode = self.get_inode(dirent.nid, dirent.file_type)
-                        if isinstance(inode, DirInode):
+                        if isinstance(next_inode, DirInode):
                             inode = next_inode
                             ok = True
                         else:
-                            raise ValueError("Inode at %r is of type %r instead of DirInode" % (path[0:i], type(inode)))
+                            raise ValueError("Inode at %r is of type %r instead of DirInode" % (path[0:i], type(next_inode)))
             if not ok:
                 raise FileNotFoundError("Failed to find %r in %r" % (path[i], path[0:i]))
         assert False, path
