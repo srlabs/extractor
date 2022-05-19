@@ -875,6 +875,8 @@ class SparseImageHandler(FileHandler):
                 return CheckFileResult.IGNORE
             elif self.fn.lower().startswith(b"system_other."):
                 return CheckFileResult.IGNORE
+            elif self.fn.lower().startswith(b"vendor_dlkm."):
+                return CheckFileResult.IGNORE
             else:
                 if os.stat(self.abs_fn).st_size < 32 * 1024 * 1024:
                     # Ignore images smaller than 32 MiB, these images can't be a valid system/vendor partition
