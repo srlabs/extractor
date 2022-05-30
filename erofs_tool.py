@@ -521,15 +521,15 @@ class DirInode(Inode):
         for dirent in self.dirents:
             out_path = os.path.join(output_dir, dirent.filename)
             print("Extracting %r" % out_path.decode())
+            # Some versions of mkfs.erofs add entries for "." and ".."
+            if dirent.filename in (b'.', b'..'):
+                continue
             if os.path.exists(out_path):
                 raise ValueError("Duplicate file %r" % out_path)
             child_inode = self.erofs.get_inode(dirent.nid, dirent.file_type)
             if dirent.file_type == FileType.EROFS_FT_SYMLINK:
                 os.symlink(child_inode.get_symlink_dest(), out_path)
             elif dirent.file_type == FileType.EROFS_FT_DIR:
-                # Some versions of mkfs.erofs add entries for "." and ".."
-                if dirent.filename in (b'.', b'..'):
-                    continue
                 os.mkdir(out_path)
                 # Always make directories mode 755
                 os.chmod(out_path, 0o755)
