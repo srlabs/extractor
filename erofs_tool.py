@@ -227,7 +227,12 @@ class Erofs:
         self.fn = fn
         self.file_handle = open(fn, 'rb')
         self.file_size = os.fstat(self.file_handle.fileno()).st_size
-        self.mmap = mmap.mmap(self.file_handle.fileno(), 0, mmap.MAP_SHARED, mmap.PROT_READ)
+        if os.name == 'posix':  # Unix/Linux/MacOS
+            self.mmap = mmap.mmap(self.file_handle.fileno(), 0, mmap.MAP_SHARED, mmap.PROT_READ)
+        elif os.name == 'nt':  # Windows
+            self.mmap = mmap.mmap(self.file_handle.fileno(), 0, access=mmap.ACCESS_READ)
+        else:
+            raise OSError("Unsupported operating system")        
         self.super = struct_erofs_super.parse(self.mmap[0x400:0x400+struct_erofs_super.sizeof()])
         print("0x%08x-0x%08x: SUPER" % (0x400, 0x400 + struct_erofs_super.sizeof()))
         assert self.super.magic == 0xe0f5e1e2, "0x%x" % self.super.magic
