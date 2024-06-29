@@ -9,12 +9,22 @@ Extractor is a powerful Android firmware image extraction utility
 ## Supported formats
 
 Extractor supports the following Android image formats:
+
 ```
 android sparse image, erofs, extfs, android signed images, android data image, android data image brotli, pac, zip, lz4, tar, tar md5, sin, ozip, app, kdz, bin, cpb, super
 ```
 
 # Installation
+
 To run Extractor on your computer some preparation steps are necessary. Since Extractor is a python tool, a working python environment is required.
+
+### Clone repo home folder
+
+```bash
+cd ~
+git clone https://github.com/srlabs/extractor.git
+cd extractor
+```
 
 ## Debian-based (Debian, Ubuntu)
 
@@ -22,8 +32,12 @@ Currently supports Debian 10 and Ubuntu 20.04. Use a terminal shell to execute t
 
 ```bash
 sudo apt update
-# Install dependencies
-sudo apt install -y git android-sdk-libsparse-utils liblz4-tool brotli unrar
+```
+
+### Install dependencies
+
+```bash
+sudo apt install -y git android-sdk-libsparse-utils liblz4-tool brotli unrar libxml2 libxml2-dev libffi-dev
 ```
 
 We recommend using a python virtualenv for installing Extractors python dependencies:
@@ -38,38 +52,38 @@ source venv/bin/activate
 Now, install the python dependencies:
 
 ```bash
-pip3 install -r requirements.txt
+sudo pip3 install -r requirements.txt
 ```
 
 Extractor depends on some git submodules, all of which can be initialized like so
+Initialize git submodules
 
 ```bash
-# Initialize git submodules
 ./scripts/init.sh
 ```
-
-If you wish to run Extractor without installing the necesarry requirements yourself, you may run it using docker.
 
 # Usage
 
 You can run Extractor on your machine by running:
 
 ```bash
-sudo ./extractor.py <firmware image> --system-dir-output <output directory>
+sudo ~/extractor/extractor.py <firmware image> --system-dir-output <output directory>
 ```
 
 This will extract a firmware image into a specified output directory. Extractor also supports saving the output in a tar archive:
 
 ```bash
-sudo ./extractor.py <firmware image> --tar-output
+sudo ~/extractor/extractor.py <firmware image> --tar-output
 ```
 
 Note: root privileges are required due to temporarily active loopback mount operations
 
 ## Docker
 
+If you wish to run Extractor without installing the necesarry requirements yourself, you may run it using docker.
+
 ```bash
-./extract-docker.py --in-file <firmware image> --out-dir <output directory>
+sudo ~/extractor/extract-docker.py --in-file <firmware image> --out-dir <output directory>
 ```
 
 ## License
