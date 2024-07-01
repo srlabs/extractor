@@ -7,9 +7,10 @@ cryptography==3.2.1
 et-xmlfile==1.0.1
 idna==2.10
 jdcal==1.4.1
-lxml==4.6.2
+lxml==5.2.2
 Naked==0.1.31
 protobuf==3.15.1
+pycparser==2.22
 pycryptodome==3.9.9
 pytlv==0.71
 PyYAML==5.3.1
